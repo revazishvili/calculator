@@ -1,0 +1,52 @@
+# იმპორტირებულია კივის საჭირო კლასები
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+
+class CalculatorApp(App):
+    def build(self):
+        # შექმნილია ძირითადი ვერტიკალური BoxLayout
+        root_layout = BoxLayout(orientation='vertical')
+
+        # შექმნილია TextInput ვიჯეტი, რომელიც გამოყენებული იქნება როგორც კალკულატორის ეკრანი
+        # მრავალსტრიქონიანი არაა, მხოლოდ წაკითხვადია, ტექსტია გასწორებული მარჯვნივ და შრიფტის ზომაა 55
+        self.solution = TextInput(multiline=False, readonly=True, halign='right', font_size=55)
+        root_layout.add_widget(self.solution) # სოლუშენი დაემატა root_layout-ს
+
+        # ეს არის სიების სია, რომელიც შეიცავს კალკულატორის ღილაკების ეტიკეტებს
+        buttons = [
+            ['7', '8', '9', '/'],
+            ['4', '5', '6', '*'],
+            ['1', '2', '3', '-'],
+            ['0', '.', '=', '+']
+        ]
+
+        # ეს ციკლი ქმნის ღილაკებს თითოეული ეტიკეტისთვის და ათავსებს მათ ჰორიზონტალურ BoxLayout-ებში
+        for row in buttons:
+            row_layout = BoxLayout() # შეიქმნა ჰორიზონტალური BoxLayout ერთი რიგისთვის
+            for label in row:
+                # შეიქმნა Button ვიჯეტი, რომლის ტექსტია label და გამოიძახება add_operation მეთოდი დაჭერისას
+                button = Button(text=label, on_press=self.add_operation)
+                row_layout.add_widget(button) # ღილაკი დაემატა ამ რიგის BoxLayout-ს
+            root_layout.add_widget(row_layout) # ამ რიგის BoxLayout დაემატა ძირითად root_layout-ს
+
+        return root_layout # ბრუნდება root_layout, რომელიც შეიცავს მთლიან ინტერფეისს
+
+    def add_operation(self, instance):
+        # წამოიღება ღილაკის ტექსტი
+        operation = instance.text
+        if operation == '=':
+            # თუ ღილაკია "=", მაშინ ცდილობს გამოთვალოს გამოსახულება eval-ის გამოყენებით
+            try:
+                self.solution.text = str(eval(self.solution.text))
+            except Exception:
+                # თუ შეცდომაა, სოლუშენში იწერება "Error"
+                self.solution.text = 'Error'
+        else:
+            # თუ არაა "=", მაშინ ოპერაცია ემატება სოლუშენს
+            self.solution.text += operation
+
+# თუ ეს არის მთავარი სკრიპტი, მაშინ იქმნება CalculatorApp-ის ინსტანცია და იწყება აპლიკაცია
+if __name__ == '__main__':
+    CalculatorApp().run()
